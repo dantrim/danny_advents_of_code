@@ -43,3 +43,5 @@
 # misc
 *.app/
 
+# rust
+*target/
