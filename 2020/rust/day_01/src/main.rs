@@ -75,7 +75,6 @@ fn main() {
         }
         Ok(input_data) => input_data,
     };
-    //let input_data = read_data_from_file(input).unwrap();
     let product_part1 = day01(&input_data, 2);
     let product_part2 = day01(&input_data, 3);
     println!("product_part1: {}", product_part1);
