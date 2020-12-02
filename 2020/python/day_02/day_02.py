@@ -1,5 +1,13 @@
 #!/bin/env python
 
+#
+# Advent of Code Day 2020
+# Day 02
+#
+# author: Daniel Joseph Antrim
+# e-mail: dantrim1023 AT gmail DOT com
+#
+
 import sys
 from argparse import ArgumentParser
 from pathlib import Path
