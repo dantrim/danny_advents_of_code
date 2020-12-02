@@ -6,7 +6,6 @@
 // e-mail: dantrim1023 AT gmail DOT com
 //
 
-//use std::fs;
 use clap::{App, Arg};
 use std::fs::File;
 use std::io::{BufRead, BufReader, Error, ErrorKind};
