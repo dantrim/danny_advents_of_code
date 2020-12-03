@@ -34,7 +34,8 @@ def is_tree(character):
 
 def traverse_slope(full_forest, right_step, down_step):
     """
-    Traverse the full forest, moving right 3 and down 1,
+    Traverse the full forest, moving right <right_step>
+    number of steps and down <down_step> number of steps,
     starting at the upper left corner and count how many
     trees ("#") are encountered on the way down.
 
