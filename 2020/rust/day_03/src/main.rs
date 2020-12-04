@@ -6,8 +6,6 @@
 // e-mail: dantrim1023 AT gmail DOT com
 //
 
-
-
 use clap::{App, Arg};
 use std::fs::File;
 use std::io::{BufRead, BufReader};
@@ -20,9 +18,6 @@ fn load_forest(path: &str) -> Array2D<char> {
     // to convert vectors into matrices in rust...
     let mut forest = vec![];
     let forest_row_strings: Vec<String> = BufReader::new(File::open(path).unwrap())
-
-
-
         .lines()
         .map(|line| line.expect("Could not parse line"))
         .collect();

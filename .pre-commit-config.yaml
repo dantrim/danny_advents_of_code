@@ -12,8 +12,8 @@ repos:
         - id: rustfmt
           name: rustfmt
           language: system
-          entry: "./$(git rev-parse --show-toplevel)/format/pre-commit_rustfmt.sh"
-          files: ^rust/.*\.rs$
+          entry: bash -c "$(git rev-parse --show-toplevel)/pre-commit/pre-commit_rustfmt.sh"
+          files: \.rs$
           types:
               - file
               - rust
