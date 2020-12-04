@@ -63,16 +63,16 @@ def passport_is_valid_part2(passport):
 
     rules = {
         "byr": lambda x: (
-            re.search("^[0-9]{4}$", x)
-            and int(x) in np.arange(1920, 2002 + 1, 1) is not None
+            re.search("^[0-9]{4}$", x) is not None
+            and int(x) in np.arange(1920, 2002 + 1, 1)
         ),
         "iyr": lambda x: (
-            re.search("^[0-9]{4}$", x)
-            and int(x) in np.arange(2010, 2020 + 1, 1) is not None
+            re.search("^[0-9]{4}$", x) is not None
+            and int(x) in np.arange(2010, 2020 + 1, 1)
         ),
         "eyr": lambda x: (
-            re.search("^[0-9]{4}$", x)
-            and int(x) in np.arange(2020, 2030 + 1, 1) is not None
+            re.search("^[0-9]{4}$", x) is not None
+            and int(x) in np.arange(2020, 2030 + 1, 1)
         ),
         "hgt": lambda x: (
             (
