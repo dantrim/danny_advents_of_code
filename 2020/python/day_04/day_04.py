@@ -29,7 +29,6 @@ class PassPort:
             "cid": "",
         }
         self._fields = sorted(self.entries.keys())
-        self._lines = lines
         self._load(lines)
 
     def __str__(self):
@@ -52,10 +51,10 @@ class PassPort:
 def passport_is_valid_part1(passport):
     missing_fields = []
     for field, entry in passport.entries.items():
+        if field == "cid":
+            continue
         if not entry:
             missing_fields.append(field)
-    if "cid" in missing_fields:
-        missing_fields.remove("cid")
     return len(missing_fields) == 0
 
 
