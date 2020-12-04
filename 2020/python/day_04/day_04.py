@@ -11,6 +11,8 @@
 import sys
 from argparse import ArgumentParser
 from pathlib import Path
+import re
+import numpy as np
 
 
 class PassPort:
@@ -47,7 +49,7 @@ class PassPort:
                     self.entries[expected_field] = input_fields[expected_field]
 
 
-def passport_is_valid(passport):
+def passport_is_valid_part1(passport):
     missing_fields = []
     for field, entry in passport.entries.items():
         if not entry:
@@ -55,6 +57,50 @@ def passport_is_valid(passport):
     if "cid" in missing_fields:
         missing_fields.remove("cid")
     return len(missing_fields) == 0
+
+
+def passport_is_valid_part2(passport):
+
+    rules = {
+        "byr": lambda x: (
+            re.search("^[0-9]{4}$", x)
+            and int(x) in np.arange(1920, 2002 + 1, 1) is not None
+        ),
+        "iyr": lambda x: (
+            re.search("^[0-9]{4}$", x)
+            and int(x) in np.arange(2010, 2020 + 1, 1) is not None
+        ),
+        "eyr": lambda x: (
+            re.search("^[0-9]{4}$", x)
+            and int(x) in np.arange(2020, 2030 + 1, 1) is not None
+        ),
+        "hgt": lambda x: (
+            (
+                re.search("^\d{1,3}cm$", x) is not None
+                and int(x.replace("cm", "")) in np.arange(150, 193 + 1, 1)
+            )
+            or (
+                re.search("^\d{1,2}in$", x) is not None
+                and int(x.replace("in", "")) in np.arange(59, 76 + 1, 1)
+            )
+        ),
+        "hcl": lambda x: re.search("^#[0-9a-f]{6}$", x) is not None,
+        "ecl": lambda x: (
+            len(x) == 3 and x in ["amb", "blu", "brn", "gry", "grn", "hzl", "oth"]
+        ),
+        "pid": lambda x: re.search("^\d{9}$", x) is not None,
+        "cid": lambda x: True,
+    }
+
+    for field_name, rule in rules.items():
+        if field_name == "cid":
+            continue
+        if field_name in passport.entries and passport.entries[field_name] != "":
+            if not rule(passport.entries[field_name]):
+                return False
+        elif field_name in passport.entries and passport.entries[field_name] == "":
+            return False
+    return True
 
 
 def load_passports_from_input(input_path):
@@ -70,14 +116,20 @@ def load_passports_from_input(input_path):
                 passports.append(PassPort(passport_num, passport_lines))
                 passport_num += 1
                 passport_lines = []
+        if len(passport_lines) != 0:
+            passports.append(PassPort(passport_num, passport_lines))
     return passports
 
 
 def main(input_path):
     passports = load_passports_from_input(input_path)
     print(f"N loaded passports : {len(passports)}")
-    valid_passports = list(filter(lambda x: passport_is_valid(x), passports))
+    valid_passports = list(filter(lambda x: passport_is_valid_part1(x), passports))
     print(f"PART 1: N valid: {len(valid_passports)}")
+
+    # part 2
+    valid_passports_2 = list(filter(lambda x: passport_is_valid_part2(x), passports))
+    print(f"PART 2: N valid: {len(valid_passports_2)}")
 
 
 if __name__ == "__main__":
