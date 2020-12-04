@@ -6,6 +6,7 @@ FIRST_FILE=1
 for file in $(git diff --name-only --staged); do
     #FMT_RESULT="$(rustfmt --skip-children --force --write-mode diff $file 2>/dev/null || true)"
     FMT_RESULT="$(rustfmt --edition=2018 $file 2>/dev/null || true)"
+    echo "FOOBLY"
     if [ "$FMT_RESULT" != "" ]; then
         if [ $FIRST_FILE -eq 0 ]; then
             echo -n ", "
