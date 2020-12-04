@@ -1,26 +1,12 @@
 #!/bin/bash
 
-HAS_ISSUES=0
-FIRST_FILE=1
-
 for file in $(git diff --name-only --staged); do
-    #FMT_RESULT="$(rustfmt --skip-children --force --write-mode diff $file 2>/dev/null || true)"
-    FMT_RESULT="$(rustfmt --edition=2018 $file 2>/dev/null || true)"
-    echo "FOOBLY"
-    if [ "$FMT_RESULT" != "" ]; then
-        if [ $FIRST_FILE -eq 0 ]; then
-            echo -n ", "
-        fi  
-        echo -n "$file"
-        HAS_ISSUES=1
-        FIRST_FILE=0
-        echo "  [rustfmt] File ${file} fails format check"
+    if [[ ${file} == *.rs ]]; then
+        FMT_RESULT="$(rustfmt --edition=2018 $file 2>/dev/null)" # || true)"
+        if [ "$FMT_RESULT" != "" ]; then
+            if [ $FIRST_FILE -eq 0 ]; then
+                echo -n ", "
+            fi  
+        fi
     fi
 done
-
-if [ $HAS_ISSUES -eq 0 ]; then
-    exit 0
-fi
-
-echo ". Your code has formatting issues in files listed above. Format your code with \`make format\` or call rustfmt manually."
-exit 1
