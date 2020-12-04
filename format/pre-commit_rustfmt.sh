@@ -1,4 +1,4 @@
-!/bin/bash
+#!/bin/bash
 
 HAS_ISSUES=0
 FIRST_FILE=1
