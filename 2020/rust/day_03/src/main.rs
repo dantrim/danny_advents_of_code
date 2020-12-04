@@ -20,6 +20,7 @@ fn load_forest(path: &str) -> Array2D<char> {
     let forest_row_strings: Vec<String> = BufReader::new(File::open(path).unwrap())
 
 
+
         .lines()
         .map(|line| line.expect("Could not parse line"))
         .collect();
