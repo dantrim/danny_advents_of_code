@@ -67,16 +67,20 @@ def find_unique_axis(direction_list: list, starting_lo: int, starting_hi: int) -
     return current_lo
 
 
-def compute_seat_id(seat_barcode: str) -> int:
+def seat_from_barcode(seat_barcode: str) -> list:
 
     if len(seat_barcode) != 10:
         print(f"ERROR: Invalid seat barcode provided: {seat_barcode}")
         sys.exit(1)
     final_row = find_unique_axis(list(seat_barcode)[:7], 0, 127)
     final_col = find_unique_axis(list(seat_barcode)[7:], 0, 7)
+    return final_row, final_col
 
+
+def compute_seat_id(seat_barcode: str) -> int:
+    row, col = seat_from_barcode(seat_barcode)
     # seat id is (row * 8) + col
-    seat_id = (final_row * 8) + final_col
+    seat_id = (row * 8) + col
     return seat_id
 
 
@@ -85,16 +89,28 @@ def main(input_path):
     # part1
     # find the highest seat id in from the list of seat barcodes provided in the input
     maximum_seat_id = 0
-    n_barcodes_scanned = 0
+    seat_ids = []
     with open(input_path, "r") as input_file:
         for line in input_file:
             line = line.strip()
             if not line:
                 continue
-            maximum_seat_id = max([maximum_seat_id, compute_seat_id(line)])
-            n_barcodes_scanned += 1
-    print(f"PART 1: Number of seat barcodes scanned : {n_barcodes_scanned}")
+            seat_id = compute_seat_id(line)
+            maximum_seat_id = max([maximum_seat_id, seat_id])
+            seat_ids.append(seat_id)
+    print(f"PART 1: Number of seat barcodes scanned : {len(seat_ids)}")
     print(f"PART 1: maximum seat ID found           : {maximum_seat_id}")
+
+    # part 2
+    # the missing boarding pass is the only one missing within the bounds of the seat ids
+    # (the seat ids are just the linearized (col,row) addresses of the seats
+    missing_seats = sorted(set(range(min(seat_ids), max(seat_ids))) - set(seat_ids))
+    if len(missing_seats) != 1:
+        print("ERROR: Found an unexpected number of missing seats: {missing_seats}")
+        sys.exit(1)
+    print(
+        f"PART 2: Missing boarding pass has seat id : {missing_seats[0]}, at (row,col)=({missing_seats[0]//8},{missing_seats[0]%8})"
+    )
 
 
 if __name__ == "__main__":
