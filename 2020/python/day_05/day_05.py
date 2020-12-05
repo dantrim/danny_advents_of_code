@@ -103,7 +103,7 @@ def main(input_path):
 
     # part 2
     # the missing boarding pass is the only one missing within the bounds of the seat ids
-    # (the seat ids are just the linearized (col,row) addresses of the seats
+    # (the seat ids are just the linearized (col,row) addresses of the seats)
     missing_seats = sorted(set(range(min(seat_ids), max(seat_ids))) - set(seat_ids))
     if len(missing_seats) != 1:
         print("ERROR: Found an unexpected number of missing seats: {missing_seats}")
