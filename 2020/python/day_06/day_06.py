@@ -68,6 +68,72 @@ def test_sum_unique_responses(customs_data):
     assert sum(len(x) for x in unique_responses(load_groups(customs_data))) == 11
 
 
+def test_n_each_response_in_group(customs_data):
+    assert counts_for_each_response(load_groups(customs_data)) == [
+        {"a": 1, "b": 1, "c": 1},
+        {"a": 1, "b": 1, "c": 1},
+        {"a": 2, "b": 1, "c": 1},
+        {"a": 4},
+        {"b": 1},
+    ]
+
+
+def test_n_unanimous_in_group(customs_data):
+    assert [len(x) for x in unanimous_responses(load_groups(customs_data))] == [
+        3,
+        0,
+        1,
+        1,
+        1,
+    ]
+
+
+def test_sum_n_unanimous(customs_data):
+    assert sum([len(x) for x in unanimous_responses(load_groups(customs_data))]) == 6
+
+
+def unanimous_responses(group_responses: list) -> list:
+    """
+    For each of the unique responses in a group's response, find out if
+    it was given by ALL members of a given group, or just some.
+    Return the list, per group, of those responses for which everyone in the
+    group responded to with YES.
+    """
+
+    group_unanimous_responses = []
+    group_counts_dict = counts_for_each_response(group_responses)
+    for group_idx, counts_dict in enumerate(group_counts_dict):
+        unanimous_responses = []
+        n_people_in_group = len(group_responses[group_idx])
+        for response, n_appearances_of_response in counts_dict.items():
+            if n_appearances_of_response == n_people_in_group:
+                unanimous_responses.append(response)
+        group_unanimous_responses.append(unanimous_responses)
+    return group_unanimous_responses
+
+
+def counts_for_each_response(group_responses: list) -> list:
+    """
+    Count the number of occurrences of each of the unique responses within a group.
+
+    Args:
+        group_responses [list] : A list of of lists. Each sub-list contains each
+            groups' person's responses.
+
+    Returns:
+        list of dict
+    """
+
+    group_counts = []
+    uniques = unique_responses(group_responses)
+    for igroup, group in enumerate(group_responses):
+        counts = {}
+        for unique in uniques[igroup]:
+            counts[unique] = "".join(group).count(unique)
+        group_counts.append(counts)
+    return group_counts
+
+
 def unique_responses(group_responses: list) -> list:
     """
     From the list of group responses, pick out the unique responses.
@@ -128,6 +194,14 @@ def main(input_path):
         len(x) for x in unique_responses(load_groups(input_path))
     )
     print(f"PART 1: Sum of unique responses    : {sum_of_unique_responses}")
+    counts_for_each_response(load_groups(input_path))
+    unanimous_responses(load_groups(input_path))
+
+    # part 2
+    sum_unanimous_responses = sum(
+        [len(x) for x in unanimous_responses(load_groups(input_path))]
+    )
+    print(f"PART 2: Sum of unanimous responses : {sum_unanimous_responses}")
 
 
 if __name__ == "__main__":
