@@ -197,7 +197,7 @@ def main(input_path):
 
     # part 2
     sum_unanimous_responses = sum(
-        [len(x) for x in unanimous_responses(load_groups(input_path))]
+        len(x) for x in unanimous_responses(load_groups(input_path))
     )
     print(f"PART 2: Sum of unanimous responses : {sum_unanimous_responses}")
 
