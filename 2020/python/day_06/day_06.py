@@ -194,8 +194,6 @@ def main(input_path):
         len(x) for x in unique_responses(load_groups(input_path))
     )
     print(f"PART 1: Sum of unique responses    : {sum_of_unique_responses}")
-    counts_for_each_response(load_groups(input_path))
-    unanimous_responses(load_groups(input_path))
 
     # part 2
     sum_unanimous_responses = sum(
