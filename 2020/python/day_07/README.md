@@ -20,7 +20,7 @@ faded blue bags contain no other bags.
 dotted black bags contain no other bags.
 ```
 
-These rules specify the required contents for 9 bag types. In this example, every `faded blue` bag is empty, every `vibrant plum` bag contains 11 bags (5 faded blue and 6 dotted black), and so on.
+These rules specify the required contents for 9 bag types. In this example, every `faded blue` bag is empty, every `vibrant plum` bag contains 11 bags (5 `faded blue` and 6 `dotted black`), and so on.
 
 You have a `shiny gold bag`. If you wanted to carry it in at least one other bag, how many different bag colors would be valid for the outermost bag? (In other words: how many colors can, eventually, contain at least one `shiny gold bag`?)
 
