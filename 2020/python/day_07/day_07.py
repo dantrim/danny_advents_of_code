@@ -158,7 +158,7 @@ def get_bags_from_rules(rules_list: list) -> list:
 
 def trace_up(all_bags, bag):
     """
-    For the input bag "bag", trace the path upwards along all of it's parents,
+    For the input bag "bag", trace the path upwards along all of its parents,
     which are the bags that can  hold it.
     """
     parents = []
@@ -175,7 +175,7 @@ def trace_up(all_bags, bag):
 
 def trace_down(all_bags, bag):
     """
-    For the input bag "bag", trace down the path along all of it's bags that it
+    For the input bag "bag", trace down the path along all of its bags that it
     can hold and count them.
     """
     n = 0  # number of children seen at this level
