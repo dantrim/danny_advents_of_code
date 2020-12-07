@@ -20,26 +20,44 @@ def example_rule():
     return "light red bags contain 1 bright white bag, 2 muted yellow bags."
 
 
-# @pytest.fixture
-# def example_rules():
-#    test_data = """
-#    light red bags contain 1 bright white bag, 2 muted yellow bags.
-#    dark orange bags contain 3 bright white bags, 4 muted yellow bags.
-#    bright white bags contain 1 shiny gold bag.
-#    muted yellow bags contain 2 shiny gold bags, 9 faded blue bags.
-#    shiny gold bags contain 1 dark olive bag, 2 vibrant plum bags.
-#    dark olive bags contain 3 faded blue bags, 4 dotted black bags.
-#    vibrant plum bags contain 5 faded blue bags, 6 dotted black bags.
-#    faded blue bags contain no other bags.
-#    dotted black bags contain no other bags.
-#    """
-#    return [x.strip() for x in test_data.split("\n") if x != ""]
-#
-# def test_get_bag_types(example_rules):
-#    assert(len(get_bag_types_from_rules(example_rules)) == 9)
-#
-# def test_get_bag_types_from_rule(example_rule):
-#    assert(set(get_bag_types_from_rule(example_rule)) == set("light red", "bright white", "muted yellow"))
+@pytest.fixture
+def example_rules_1():
+    test_data = """
+   light red bags contain 1 bright white bag, 2 muted yellow bags.
+   dark orange bags contain 3 bright white bags, 4 muted yellow bags.
+   bright white bags contain 1 shiny gold bag.
+   muted yellow bags contain 2 shiny gold bags, 9 faded blue bags.
+   shiny gold bags contain 1 dark olive bag, 2 vibrant plum bags.
+   dark olive bags contain 3 faded blue bags, 4 dotted black bags.
+   vibrant plum bags contain 5 faded blue bags, 6 dotted black bags.
+   faded blue bags contain no other bags.
+   dotted black bags contain no other bags.
+   """
+    return [x.strip() for x in test_data.split("\n") if x != ""]
+
+
+@pytest.fixture
+def example_rules_2():
+    test_data = """
+    shiny gold bags contain 2 dark red bags.
+    dark red bags contain 2 dark orange bags.
+    dark orange bags contain 2 dark yellow bags.
+    dark yellow bags contain 2 dark green bags.
+    dark green bags contain 2 dark blue bags.
+    dark blue bags contain 2 dark violet bags.
+    dark violet bags contain no other bags.
+    """
+    return [x.strip() for x in test_data.split("\n") if x != ""]
+
+
+def test_example_1(example_rules_1):
+    all_bags = get_bags_from_rules(example_rules_1)
+    assert len(trace_up(all_bags, all_bags["shiny gold"])) == 4
+
+
+def test_example_2(example_rules_2):
+    all_bags = get_bags_from_rules(example_rules_2)
+    assert trace_down(all_bags, all_bags["shiny gold"]) == 126
 
 
 class Bag:
@@ -123,9 +141,6 @@ def get_bags_from_rules(rules_list: list) -> list:
             print(f"ERROR: --> this bag = {holder_bag}")
             sys.exit(1)
         all_bags[holder_bag.color] = holder_bag
-        # for contained_bag_color in holder_bag.can_hold :
-        #    if contained_bag_color in all_bags :
-        #        all_bags[contained_bag_color].held_by.append(holder_bag.color)
 
     # could probably  fill the list of "held_by" at the same time as in the above
     # loop, but would have to check for filing up the held_by and can_hold lists/dicts
@@ -142,7 +157,10 @@ def get_bags_from_rules(rules_list: list) -> list:
 
 
 def trace_up(all_bags, bag):
-
+    """
+    For the input bag "bag", trace the path upwards along all of it's parents,
+    which are the bags that can  hold it.
+    """
     parents = []
     if len(bag.held_by) == 0:
         return parents
@@ -155,6 +173,24 @@ def trace_up(all_bags, bag):
     return list(set(parents))
 
 
+def trace_down(all_bags, bag):
+    """
+    For the input bag "bag", trace down the path along all of it's bags that it
+    can hold and count them.
+    """
+    n = 0  # number of children seen at this level
+    if len(bag.can_hold) == 0:
+        return n
+    for bag_type, n_can_hold in bag.can_hold.items():
+        child_bag = all_bags[bag_type]
+        for i in range(n_can_hold):
+            n += 1  # count once for the child at this level
+            n += trace_down(
+                all_bags, child_bag
+            )  # counts for all children at lower levels
+    return n
+
+
 def main(input_path):
     with open(input_path, "r") as infile:
         all_rules = infile.readlines()
@@ -164,6 +200,10 @@ def main(input_path):
     # part 1
     shiny_gold_parents = trace_up(all_bags, all_bags["shiny gold"])
     print(f'PART 1: {len(shiny_gold_parents)} "shiny gold" parents')
+
+    # part 2
+    n_shiny_gold_children = trace_down(all_bags, all_bags["shiny gold"])
+    print(f"PART 2: Number of shiny gold children: {n_shiny_gold_children}")
 
 
 if __name__ == "__main__":
