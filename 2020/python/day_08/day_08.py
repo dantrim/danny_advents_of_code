@@ -122,6 +122,89 @@ def test_example_0(example_instructions_infinite_loop):
     assert program.accumulator == 5
 
 
+def test_corrupted_location():
+    instructions = """
+    nop +0
+    acc +1
+    jmp +4
+    acc +3
+    jmp -3
+    acc -99
+    acc +1
+    jmp -4
+    acc +6
+    """
+    program_lines = [x.strip() for x in instructions.split("\n") if x != ""]
+    corrupted_instruction = find_corrupted_instruction(program_lines)
+    assert corrupted_instruction == ["jmp", 7]
+
+
+def test_corruption_fix():
+    instructions = """
+    nop +0
+    acc +1
+    jmp +4
+    acc +3
+    jmp -3
+    acc -99
+    acc +1
+    jmp -4
+    acc +6
+    """
+    program_lines = [x.strip() for x in instructions.split("\n") if x != ""]
+    corrupted_instruction = find_corrupted_instruction(program_lines)
+    if corrupted_instruction is None:
+        assert False
+    pos = corrupted_instruction[1]
+    program = Program(program_lines)
+    new_instruction = {"jmp": "nop", "nop": "jmp"}[corrupted_instruction[0]]
+    program.program[pos] = [new_instruction, program.program[pos][1]]
+    for _ in program:
+        pass
+    assert program.finished
+
+
+def find_corrupted_instruction(program_lines):
+
+    # brute force!
+    jmp_locations = []
+    nop_locations = []
+    program = Program(program_lines)
+    for istep, instruction in enumerate(program.program):
+        instruction, action = instruction
+        if instruction == "jmp":
+            jmp_locations.append(istep)
+        elif instruction == "nop":
+            nop_locations.append(istep)
+
+    program_finished = False
+    max_step = 0
+    max_sp = 0
+    max_sp_at = ["", 0]
+
+    for iop, op_locations in enumerate([jmp_locations, nop_locations]):
+        for location in op_locations:
+            program = Program(program_lines)
+            current_instruction = program.program[location]
+            new_instruction = {0: "nop", 1: "jmp"}[iop]
+            new_instruction = [new_instruction, current_instruction[1]]
+            program.program[location] = new_instruction
+            for istep, _ in enumerate(program):
+                max_step = max([istep, max_step])
+                if program.sp > max_sp:
+                    max_sp = max([max_sp, program.sp])
+                    max_sp_at = [{0: "jmp", 1: "nop"}[iop], location]
+                max_sp = max([max_sp, program.sp])
+                if program.counts[program.sp] >= 1:
+                    break
+            if program.finished:
+                program_finished = True
+    if program_finished:
+        return max_sp_at
+    else:
+        return None
+
+
 class Program:
     def __init__(self, program_lines):
         self.accumulator = 0
@@ -152,15 +235,9 @@ class Program:
         return self
 
     def __next__(self):
-        if self.sp >= len(self.program):
-            print(f"ERROR: Stack overflow at SP = {self.sp}")
-            sys.exit(1)
-
         if not self.started:
             self.started = True
             return
-
-        at_end_of_program = self.sp == len(self.program) - 1
 
         instruction, action = self.program[self.sp]
         self.previous_sp = self.sp
@@ -169,10 +246,6 @@ class Program:
         if instruction == "acc":
             self.accumulator += action
 
-            if at_end_of_program:
-                self.finished = True
-                raise StopIteration
-
             # advance the program
             self.counts[self.sp] += 1
             self.sp += 1
@@ -180,20 +253,24 @@ class Program:
         elif instruction == "jmp":
             self.counts[self.sp] += 1
             self.sp += action
-            if self.sp >= len(self.program):
-                print(
-                    f"ERROR: JUMP instruction overflows stack at SP = {self.sp - action}"
-                )
-                sys.exit(1)
         elif instruction == "nop":
-            if at_end_of_program:
-                return False
             self.counts[self.sp] += 1
             self.sp += 1
         else:
             print("ERROR: Bad stack!")
             sys.exit(1)
-        return True
+
+        # program termination is defined as: attempting to execute an
+        # instruction immediately after the last instruction in the file.
+        # what this means is this:
+        #   * acc: if the last instruction is an acc, then the SP is (N-instructions + 1)
+        #   * jmp: if the last instruction is jmp, with positive offset, then SP >= N-instructions
+        #   * nop: if the last instruction is nop, then the SP is (N-instructions + 1)
+        #
+        at_end_of_program = self.sp >= len(self.program)
+        if at_end_of_program:
+            self.finished = True
+            raise StopIteration
 
     def load_program(self, program_lines):
         expected_instructions = ["nop", "acc", "jmp"]
@@ -218,7 +295,6 @@ class Program:
             self.program.append([instruction, int(action)])
             self.counts.append(0)
             program_line += 1
-        print(f"Loaded program with {len(self.program)} instructions")
 
 
 def main(input_path):
@@ -229,12 +305,39 @@ def main(input_path):
 
     # part 1
     # iterate through the program until we hit a repeated instruction
-    for _ in program:
+    for istep, _ in enumerate(program):
         if program.counts[program.sp] >= 1:
             break
     print(
         f"PART 1: Accumulator immediately before any repeated instruction = {program.accumulator}"
     )
+
+    # part 2
+    # find the location in the program that is corrupted
+    corrupted_instruction = find_corrupted_instruction(program_lines)
+    if corrupted_instruction is None:
+        print("ERROR: Did not find a corrupted instruction in input program!")
+    corrupted_instruction, corrupted_line = (
+        corrupted_instruction[0],
+        corrupted_instruction[1],
+    )
+    print(
+        f'PART 2: Corrupted instruction is "{corrupted_instruction}" at program line {corrupted_line}'
+    )
+    program = Program(program_lines)
+
+    # update the corrupted line
+    program.program[corrupted_line] = [
+        {"jmp": "nop", "nop": "jmp"}[corrupted_instruction],
+        program.program[corrupted_line][1],
+    ]
+
+    # run the program (assume that the infinite loop issue is gone)
+    [s for s in program]
+    if not program.finished:
+        print("PART 2: ERROR program did not finish!")
+        sys.exit(1)
+    print(f"PART 2: Program accumulator after corruption fix: {program.accumulator}")
 
 
 if __name__ == "__main__":
