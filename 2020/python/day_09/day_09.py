@@ -60,7 +60,7 @@ def xmas_chunks(input_data: list, length_of_preamble: int, advance: int) -> list
         step += advance
 
 
-def find_sets_that_sum_to(word: int, words_to_check: list, length_of_sum=2):
+def find_sets_that_sum_to(word: int, words_to_check: list, length_of_sum=2) -> list:
     """
     Return a list of lists whose sum are equal to `word`.
     The size of the sub-lists (from which the sums are derived) are of
