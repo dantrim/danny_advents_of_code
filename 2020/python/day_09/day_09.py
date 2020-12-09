@@ -88,7 +88,6 @@ def find_first_weakness(input_data: list, preamble_length: int) -> int:
 
 
 def contiguous_set_that_sums_to(summed_value: int, input_data: list) -> list:
-
     """
     Find the contiguous set of words in the input data `input_data` list
     that sum to the requested value `summed_value`.
