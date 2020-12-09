@@ -23,7 +23,24 @@ def test_example_0():
     assert find_first_weakness(input_data, preamble_length=5) == 127
 
 
-def xmas_chunks(input_data: list, length_of_preamble: int) -> list:
+def test_find_contiguous_set():
+    test_data_path = Path("test_input.txt")
+    with open(test_data_path, "r") as ifile:
+        input_data = [x.strip() for x in ifile.readlines()]
+    assert contiguous_set_that_sums_to(input_data, 127) == [15, 25, 47, 40]
+
+
+def test_example_1():
+    test_data_path = Path("test_input.txt")
+    with open(test_data_path, "r") as ifile:
+        input_data = [x.strip() for x in ifile.readlines()]
+    weakness_sets = contiguous_set_that_sums_to(input_data, 127)
+    lo, hi = min(weakness_sets), max(weakness_sets)
+    summed = sum([lo, hi])
+    assert [lo, hi, summed] == [15, 47, 62]
+
+
+def xmas_chunks(input_data: list, length_of_preamble: int, advance: int) -> list:
     """
     Generator that iterates through the `input_data` by windows
     of length `length_of_preamble`+1, with the start position of
@@ -38,16 +55,29 @@ def xmas_chunks(input_data: list, length_of_preamble: int) -> list:
         if len(chunk) != window_length:
             break
         yield chunk
-        step += 1
+        step += advance
 
 
-def find_pairs_that_sum_to(word, words_to_check):
-    return list(filter(lambda x: sum(x) == word, combinations(set(words_to_check), 2)))
+def find_pairs_that_sum_to(word: int, words_to_check: list, length_of_sum=2):
+    """
+    Return a list of lists whose sum are equal to `word`.
+    The size of the sub-lists (from which the sums are derived) are of
+    length `length_of_sum`.
+    """
+    return list(
+        filter(
+            lambda x: sum(x) == word, combinations(set(words_to_check), length_of_sum)
+        )
+    )
 
 
 def find_first_weakness(input_data: list, preamble_length: int) -> int:
+    """
+    Find the first word in `input_data` that cannot be the result
+    of the sum of the previous `preamble_length` words.
+    """
 
-    for ichunk, chunk in enumerate(xmas_chunks(input_data, preamble_length)):
+    for ichunk, chunk in enumerate(xmas_chunks(input_data, preamble_length, 1)):
         chunk = np.array(chunk)
         previous_words, current_word = chunk[:preamble_length], chunk[-1]
         words_that_sum = find_pairs_that_sum_to(current_word, previous_words)
@@ -58,6 +88,27 @@ def find_first_weakness(input_data: list, preamble_length: int) -> int:
     return None
 
 
+def contiguous_set_that_sums_to(input_data: list, summed_value: int) -> list:
+
+    """
+    Find the contiguous set of words in the input data `input_data` list
+    that sum to the requested value `summed_value`.
+
+    This function assumes that there is only one such contiguous set,
+    and exits once the first such set is found.
+    """
+
+    length = 2
+    while True:
+        if length == len(input_data):
+            break
+        for ichunk, chunk in enumerate(xmas_chunks(input_data, length - 1, advance=1)):
+            if sum(chunk) == summed_value:
+                return chunk
+        length += 1
+    return None
+
+
 def main(input_path):
 
     with open(input_path, "r") as ifile:
@@ -65,6 +116,15 @@ def main(input_path):
     # part 1
     first_weakness = find_first_weakness(input_data, 25)
     print(f"PART 1: First weakness = {first_weakness}")
+
+    contiguous_set = contiguous_set_that_sums_to(input_data, first_weakness)
+    if contiguous_set is None:
+        print(
+            f"ERROR: Did not find a contiguous set of data that sum to {first_weakness}!"
+        )
+        sys.exit(1)
+    lo, hi = min(contiguous_set), max(contiguous_set)
+    print(f"PART 2: min = {lo}, max = {hi} => sum = {sum([lo,hi])}")
 
 
 if __name__ == "__main__":
