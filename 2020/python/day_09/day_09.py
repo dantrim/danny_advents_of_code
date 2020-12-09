@@ -27,14 +27,14 @@ def test_find_contiguous_set():
     test_data_path = Path("test_input.txt")
     with open(test_data_path, "r") as ifile:
         input_data = [x.strip() for x in ifile.readlines()]
-    assert contiguous_set_that_sums_to(input_data, 127) == [15, 25, 47, 40]
+    assert contiguous_set_that_sums_to(127, input_data) == [15, 25, 47, 40]
 
 
 def test_example_1():
     test_data_path = Path("test_input.txt")
     with open(test_data_path, "r") as ifile:
         input_data = [x.strip() for x in ifile.readlines()]
-    weakness_set = contiguous_set_that_sums_to(input_data, 127)
+    weakness_set = contiguous_set_that_sums_to(127, input_data)
     if weakness_set is None:
         return False
     lo, hi = min(weakness_set), max(weakness_set)
@@ -90,7 +90,7 @@ def find_first_weakness(input_data: list, preamble_length: int) -> int:
     return None
 
 
-def contiguous_set_that_sums_to(input_data: list, summed_value: int) -> list:
+def contiguous_set_that_sums_to(summed_value: int, input_data: list) -> list:
 
     """
     Find the contiguous set of words in the input data `input_data` list
@@ -119,7 +119,7 @@ def main(input_path):
     first_weakness = find_first_weakness(input_data, 25)
     print(f"PART 1: First weakness = {first_weakness}")
 
-    contiguous_set = contiguous_set_that_sums_to(input_data, first_weakness)
+    contiguous_set = contiguous_set_that_sums_to(first_weakness, input_data)
     if contiguous_set is None:
         print(
             f"ERROR: Did not find a contiguous set of data that sum to {first_weakness}!"
