@@ -34,17 +34,19 @@ def test_example_1():
     test_data_path = Path("test_input.txt")
     with open(test_data_path, "r") as ifile:
         input_data = [x.strip() for x in ifile.readlines()]
-    weakness_sets = contiguous_set_that_sums_to(input_data, 127)
-    lo, hi = min(weakness_sets), max(weakness_sets)
+    weakness_set = contiguous_set_that_sums_to(input_data, 127)
+    if weakness_set is None:
+        return False
+    lo, hi = min(weakness_set), max(weakness_set)
     summed = sum([lo, hi])
     assert [lo, hi, summed] == [15, 47, 62]
 
 
 def xmas_chunks(input_data: list, length_of_preamble: int, advance: int) -> list:
     """
-    Generator that iterates through the `input_data` by windows
+    Generator that iterates through `input_data` by windows
     of length `length_of_preamble`+1, with the start position of
-    the window advancing by only 1 position at each step in the
+    the window advancing by `advance` positions at each step in the
     iteration.
     """
     step = 0
@@ -58,7 +60,7 @@ def xmas_chunks(input_data: list, length_of_preamble: int, advance: int) -> list
         step += advance
 
 
-def find_pairs_that_sum_to(word: int, words_to_check: list, length_of_sum=2):
+def find_sets_that_sum_to(word: int, words_to_check: list, length_of_sum=2):
     """
     Return a list of lists whose sum are equal to `word`.
     The size of the sub-lists (from which the sums are derived) are of
@@ -80,7 +82,7 @@ def find_first_weakness(input_data: list, preamble_length: int) -> int:
     for ichunk, chunk in enumerate(xmas_chunks(input_data, preamble_length, 1)):
         chunk = np.array(chunk)
         previous_words, current_word = chunk[:preamble_length], chunk[-1]
-        words_that_sum = find_pairs_that_sum_to(current_word, previous_words)
+        words_that_sum = find_sets_that_sum_to(current_word, previous_words)
 
         # found the case where there are no previous words that sum to the current one
         if not words_that_sum:
@@ -102,7 +104,7 @@ def contiguous_set_that_sums_to(input_data: list, summed_value: int) -> list:
     while True:
         if length == len(input_data):
             break
-        for ichunk, chunk in enumerate(xmas_chunks(input_data, length - 1, advance=1)):
+        for ichunk, chunk in enumerate(xmas_chunks(input_data, length - 1, 1)):
             if sum(chunk) == summed_value:
                 return chunk
         length += 1
