@@ -77,7 +77,7 @@ def find_first_weakness(input_data: list, preamble_length: int) -> int:
     of the sum of the previous `preamble_length` words.
     """
 
-    for ichunk, chunk in enumerate(xmas_chunks(input_data, preamble_length + 1, 1)):
+    for chunk in xmas_chunks(input_data, preamble_length + 1, 1):
         previous_words, current_word = chunk[:preamble_length], chunk[-1]
         words_that_sum = find_sets_that_sum_to(current_word, previous_words)
 
@@ -97,14 +97,10 @@ def contiguous_set_that_sums_to(summed_value: int, input_data: list) -> list:
     and exits once the first such set is found.
     """
 
-    length = 2
-    while True:
-        if length == len(input_data):
-            break
-        for ichunk, chunk in enumerate(xmas_chunks(input_data, length, 1)):
+    for length in range(2, len(input_data)):
+        for chunk in xmas_chunks(input_data, length, 1):
             if sum(chunk) == summed_value:
                 return chunk
-        length += 1
     return None
 
 
@@ -116,6 +112,7 @@ def main(input_path):
     first_weakness = find_first_weakness(input_data, 25)
     print(f"PART 1: First weakness = {first_weakness}")
 
+    # part 2
     contiguous_set = contiguous_set_that_sums_to(first_weakness, input_data)
     if contiguous_set is None:
         print(
