@@ -42,15 +42,14 @@ def test_example_1():
     assert [lo, hi, summed] == [15, 47, 62]
 
 
-def xmas_chunks(input_data: list, length_of_preamble: int, advance: int) -> list:
+def xmas_chunks(input_data: list, window_length: int, advance: int) -> list:
     """
     Generator that iterates through `input_data` by windows
-    of length `length_of_preamble`+1, with the start position of
+    of length `window_length`, with the start position of
     the window advancing by `advance` positions at each step in the
     iteration.
     """
     step = 0
-    window_length = length_of_preamble + 1
     chunk = []
     while True:
         chunk = [int(x.strip()) for x in islice(input_data, step, step + window_length)]
@@ -79,7 +78,7 @@ def find_first_weakness(input_data: list, preamble_length: int) -> int:
     of the sum of the previous `preamble_length` words.
     """
 
-    for ichunk, chunk in enumerate(xmas_chunks(input_data, preamble_length, 1)):
+    for ichunk, chunk in enumerate(xmas_chunks(input_data, preamble_length + 1, 1)):
         chunk = np.array(chunk)
         previous_words, current_word = chunk[:preamble_length], chunk[-1]
         words_that_sum = find_sets_that_sum_to(current_word, previous_words)
@@ -104,7 +103,7 @@ def contiguous_set_that_sums_to(summed_value: int, input_data: list) -> list:
     while True:
         if length == len(input_data):
             break
-        for ichunk, chunk in enumerate(xmas_chunks(input_data, length - 1, 1)):
+        for ichunk, chunk in enumerate(xmas_chunks(input_data, length, 1)):
             if sum(chunk) == summed_value:
                 return chunk
         length += 1
