@@ -13,7 +13,6 @@ from argparse import ArgumentParser
 from pathlib import Path
 
 from itertools import islice, combinations
-import numpy as np
 
 
 def test_example_0():
@@ -79,7 +78,6 @@ def find_first_weakness(input_data: list, preamble_length: int) -> int:
     """
 
     for ichunk, chunk in enumerate(xmas_chunks(input_data, preamble_length + 1, 1)):
-        chunk = np.array(chunk)
         previous_words, current_word = chunk[:preamble_length], chunk[-1]
         words_that_sum = find_sets_that_sum_to(current_word, previous_words)
 
