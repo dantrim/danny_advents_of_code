@@ -76,7 +76,6 @@ def find_first_weakness(input_data: list, preamble_length: int) -> int:
     Find the first word in `input_data` that cannot be the result
     of the sum of the previous `preamble_length` words.
     """
-
     for chunk in xmas_chunks(input_data, preamble_length + 1, 1):
         previous_words, current_word = chunk[:preamble_length], chunk[-1]
         words_that_sum = find_sets_that_sum_to(current_word, previous_words)
@@ -95,7 +94,6 @@ def contiguous_set_that_sums_to(summed_value: int, input_data: list) -> list:
     This function assumes that there is only one such contiguous set,
     and exits once the first such set is found.
     """
-
     for length in range(2, len(input_data)):
         for chunk in xmas_chunks(input_data, length, 1):
             if sum(chunk) == summed_value:
