@@ -101,8 +101,7 @@ def find_diff_distribution(input_data: list) -> dict:
     input_data.append(
         input_data[-1] + 3
     )  # the device is +3 joltage rating relative to last element
-    input_data = np.array(input_data)
-    diffs = list(np.diff(input_data))
+    diffs = list(np.diff(np.array(input_data)))
 
     unique_diffs = list(set(diffs))
     counts = [diffs.count(x) for x in unique_diffs]
@@ -178,14 +177,14 @@ def find_n_inclusive(run_length: int) -> int:
 
     possibilities = []
     for start_idx in range(run_length):
-        start_field = [int(x) for x in np.zeros(run_length)]
+        start_field = [0 for _ in range(run_length)]
         start_field[start_idx] = 1
-        possibilities.append(list(start_field))
+        possibilities.append(start_field)
 
         stage = 0
         current_idx = start_idx
         while True:
-            last_field = list(possibilities[-1])
+            last_field = list(possibilities[-1])  # copy
 
             if stage % 2 == 0:  # grow stage
                 # this is the growth stage, where the element just to the right
