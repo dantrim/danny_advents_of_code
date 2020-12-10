@@ -125,9 +125,12 @@ def find_runs(diffs):
 def find_n_inclusive(run_length: int) -> int:
 
     """
-    This function takes in an array `run` of a fixed length,
-    and creates all possible arrays of the same length
-    where valid elements are populated.
+    This function takes in the length of a 1-valued run of adapter joltage rating
+    differences and creates all possible arrays of the same length
+    where non-zero elements represent the positions of the corresponding
+    joltage adapters that can be removed from the list and still satisfy
+    the requirement that the no adapter is followed by one whose joltage rating
+    differs by greater than 3.
 
     An element can be filled as long it satisfies the following requirements:
        - If after adding that element, there will be no run of filled elements
@@ -222,13 +225,31 @@ def find_n_valid_ways(input_data: list) -> int:
     the removal still satisfies the rules.
     """
 
+    # define the data structure
     input_data = collections.deque(sorted(input_data))
     input_data.appendleft(0)  # the wall plug
     input_data.append(
         input_data[-1] + 3
     )  # the device is +3 joltage rating relative to last element
     input_data = np.array(input_data)
+
+    # compute the element-wise difference, to compute the joltage rating differences
+    # from the sorted joltage ratings
     diffs = np.diff(input_data)
+
+    # If we are to create new configurations of the joltage adapters that still
+    # satisfy the requirement that no adjacent adapters have joltage ratings
+    # that differ by no more than 3 relative to the current one, then we will
+    # only ever be able to shift around (i.e. REMOVE) adapters whose joltage
+    # rating differs by 1 relative to their neighbors. So here we get all
+    # of the runs of differences that are equal to 1. That is, if the `diffs`
+    # array is [3,1,1,1,3,1,3,1,1,3], then `find_runs` gives us: [[1,1,1],[1],[1,1]].
+    #
+    # We assume that there are no joltage rating difference of value 2.
+    #
+    # The runs in which we perform joltage adapter shifts are independent of
+    # each other (i.e. removing element at index 4 does not impact
+    # the validity of the element at index 22), which is why we can do it this way.
     runs_of_ones = find_runs(diffs)
     adapter_configurations = []
     for irun, run in enumerate(runs_of_ones):
@@ -236,10 +257,16 @@ def find_n_valid_ways(input_data: list) -> int:
         # is a ∆ of 3, so remove it from elements that can be considered
         # to be removed/permuted
         run = run[:-1]
+
+        # Find the number of all combinations of positions in this run of ∆=1 adapters that can be
+        # marked as safe for removal in order to create a new adapter configuration.
         n_adapter_combinations_for_run = find_n_inclusive(int(len(run)))
 
         # add 1 for the configuration where no adapters are removed and/or shifted
         adapter_configurations.append(n_adapter_combinations_for_run + 1)
+
+    # take the product of the number of per-run adapter configurations to
+    # get the total number of combinations across the entire set of adapters
     return np.prod(adapter_configurations)
 
 
