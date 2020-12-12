@@ -325,6 +325,22 @@ def n_adjacent_seats_filled(
     return n_filled
 
 
+def seat_is_at_side(col: int, row: int, seat_configuration: list) -> bool:
+
+    n_columns = len(seat_configuration[0])
+    at_left = col == 0
+    at_right = col == (n_columns - 1)
+    return at_left or at_right
+
+
+def seat_is_bottom_or_top(col: int, row: int, seat_configuration: list) -> bool:
+
+    n_rows = len(seat_configuration)
+    at_top = row == 0
+    at_bottom = row == (n_rows - 1)
+    return at_top or at_bottom
+
+
 def n_visible_seats_filled(position: list, seat_configuration: list) -> int:
 
     # just crank out each case separately, perhaps go back and remove
