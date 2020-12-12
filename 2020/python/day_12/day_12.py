@@ -17,8 +17,16 @@ import numpy as np
 
 
 class Ship:
+    """
+    A structure to hold the arrays for the ship position and orientation,
+    which are in containers. So it is a container ship.
+    """
+
     def __init__(self):
         self.state = np.zeros(3)  # x-position, y-position, heading
+        self.waypoint = np.array(
+            [10, 1]
+        )  # x-position, y-position relative to ship state
         self.previous_positions = []
 
 
@@ -38,18 +46,41 @@ def test_example_0_heading(example_instructions):
 
     ship = Ship()
     for instruction in example_instructions:
-        advance_ship(ship, instruction)
+        advance_ship_part1(ship, instruction)
     assert list(ship.state) == [17, -8, 270]
 
 
 def test_example_0_distance(example_instructions):
     ship = Ship()
     for instruction in example_instructions:
-        advance_ship(ship, instruction)
+        advance_ship_part1(ship, instruction)
     assert sum([abs(x) for x in ship.state[:2]]) == 25
 
 
-def advance_ship(ship: Ship, instruction: str):
+def test_example_1_heading(example_instructions):
+    ship = Ship()
+    print(f"ship: {ship.state}, {ship.waypoint}")
+    for instruction in example_instructions:
+        advance_ship_part2(ship, instruction)
+        print(f"AFTER {instruction} --> ship: {ship.state}, {ship.waypoint}")
+    assert list(ship.state) == [214, -72, 0]
+
+
+def test_example_1_waypoint(example_instructions):
+    ship = Ship()
+    for instruction in example_instructions:
+        advance_ship_part2(ship, instruction)
+    assert list(ship.waypoint) == [4, -10]
+
+
+def test_example_1_distance(example_instructions):
+    ship = Ship()
+    for instruction in example_instructions:
+        advance_ship_part2(ship, instruction)
+    assert sum([abs(x) for x in ship.state[:2]]) == 286
+
+
+def advance_ship_part1(ship: Ship, instruction: str):
     """
     Advances the orientation and/or position of the input ship
     based on the input instruction string `instruction`.
@@ -82,6 +113,41 @@ def advance_ship(ship: Ship, instruction: str):
     ship.state[2] = (ship.state[2] + 360) % 360
 
 
+def advance_ship_part2(ship: Ship, instruction: str):
+    """
+    Advances the ship and waypoint positions based on the input instruction.
+    """
+
+    magnitude = int(instruction[1:])
+    instruction = instruction[0]
+
+    # move the waypoint
+    if instruction in ["N", "S", "E", "W"]:
+        advance = {
+            "N": [0, magnitude],
+            "S": [0, -1 * magnitude],
+            "E": [magnitude, 0],
+            "W": [-1 * magnitude, 0],
+        }[instruction]
+        ship.waypoint += advance
+    elif instruction in ["L", "R"]:
+        degrees = magnitude
+        if "R" in instruction:
+            degrees *= -1
+        degrees = (degrees + 360) % 360
+        ship.waypoint = np.array(
+            {
+                90: [-1 * ship.waypoint[1], ship.waypoint[0]],
+                180: [-1 * ship.waypoint[0], -1 * ship.waypoint[1]],
+                270: [ship.waypoint[1], -1 * ship.waypoint[0]],
+            }[degrees]
+        )
+    elif instruction == "F":
+        unit_x = ship.waypoint[0]
+        unit_y = ship.waypoint[1]
+        ship.state += [unit_x * magnitude, unit_y * magnitude, 0]
+
+
 def main(input_path):
 
     with open(input_path, "r") as ifile:
@@ -91,10 +157,19 @@ def main(input_path):
     # part 1
     ship = Ship()
     for instruction in instructions:
-        advance_ship(ship, instruction)
-    print(f"PART 1: Final ship state: {ship.state}")
+        advance_ship_part1(ship, instruction)
+    print(f"PART 1: Final ship state   : {ship.state}")
     manhattan_distance = int(sum([abs(x) for x in ship.state[:2]]))
-    print(f"PART 1: Manhattan distance: {manhattan_distance}")
+    print(f"PART 1: Manhattan distance : {manhattan_distance}")
+
+    # part 2
+    ship = Ship()
+    for instruction in instructions:
+        advance_ship_part2(ship, instruction)
+    print(f"PART 2: Final ship state   : {ship.state}")
+    print(f"PART 2: Final waypoint     : {ship.waypoint}")
+    manhattan_distance = int(sum([abs(x) for x in ship.state[:2]]))
+    print(f"PART 2: Manhattan distance : {manhattan_distance}")
 
 
 if __name__ == "__main__":
