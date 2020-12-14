@@ -36,13 +36,16 @@ def test_find_earliest_bus(example_notes):
 def get_earliest_bus_arrival(target_time: int, bus_ids: list) -> list:
 
     max_interval = max(bus_ids)
-    search_interval = [target_time - 2 * max_interval, target_time + 2 * max_interval]
 
     minimum_time_delta = 1e9
     minimum_stop_time = 1e9
     minimum_bus_id = -1
     for ibus, bus_id in enumerate(bus_ids):
-        stop_times_to_consider = np.arange(0, search_interval[1], bus_id)
+
+        # just make a wide interval of schedules for this particular bus, and
+        # compute all deltas... and then find the closest one arriving nearest
+        # (but not before) the target time
+        stop_times_to_consider = np.arange(0, target_time + 2 * max_interval, bus_id)
         for stop_time in stop_times_to_consider:
             delta = stop_time - target_time
 
