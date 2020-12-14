@@ -33,6 +33,77 @@ def test_find_earliest_bus(example_notes):
     assert (bus_id, time) == (59, 944)
 
 
+def test_part2(example_notes):
+    assert part2_shenanigans(example_notes) == 1068781
+
+
+def part2_shenanigans(input_data):
+
+    busses = ["x" if x == "x" else int(x) for x in input_data[1].split(",")]
+
+    # What we want to do is compare the busses in turn:
+    #   STEP 0: 0             <---> 1,
+    #   STEP 1: [0,1]         <---> 2,
+    #   STEP 2: [0,1,2]       <---> 3,
+    #   STEP 3: [0,1,2,...,N] <---> N+1
+    #   ...
+    #   ...
+    # At each step of considering buses [a] <---> b, we advance in time by the
+    # interval that defines the bus group [a] since by advancing in time by
+    # this amount we know that the relative offset between the busses
+    # in [a] will no longer change (i.e. the relationship between their offsets
+    # will be unchanged).
+    #
+    # So in STEP 0, with bus 0 having time step t_0, we continously advance in timesteps
+    # t_0 until we arrive at the point where (t_0 + idx_1) is a multiple of t_1,
+    # where idx_1 is the relative offset (in timestamps) of bus 1. This is the
+    # requirement of part 2.
+    #
+    # Moving on to STEP 1, we again advance in timesteps until we find a timestamp
+    # at which point the (timestamp + idx_2) is a multiple of t_2. Since we do
+    # not want to disrupt the bus 0 and bus 1 alignment that we found in STEP 0,
+    # we must then advance in time steps that are multiples of their own two times, which
+    # will mean that the timetamp that we find for the bus 2 condition is a common
+    # multiple of both bus 0 and bus 1, and that at that timestamp bus 1 is still
+    # idx_1 timestamps ahead of bus 0.
+    #
+    # So, generally after each STEP i we advance in time increments of t_i, and stop
+    # once we have met the defined condition that the (timetamp + relative offset
+    # idx_{i+1}) is a multiple of t_{i+1}. For subsequent STEPs, we then advance
+    # in steps of t_{i} * t_{i+1} since this guarantees the requirements are held
+    # for the previous steps.
+
+    # the initial time is kind of meaningless -- what matters is the relative offset of the
+    # times, so we can call the initial time to be t = 0 and associate that with
+    # the bus at index = 0
+    timestamp = 0
+
+    # starting at 0 with an increment of the bus at index 0
+    # (this quantity is our timestep of the [0,..,N] on the LHS above):
+    t_step = busses[0]  # t_0
+    for idx_bus, t_bus in enumerate(busses):
+
+        # we don't need to do anything for bus 0, since everything is relative to it
+        if idx_bus == 0:
+            continue
+
+        # we include the x's to encode the offset/index numbers in the input data
+        if t_bus == "x":
+            continue
+
+        # advance in time until the offset condition is met (the timestamp + idx
+        # is a multiple of the current bus's time step)
+        while (timestamp + idx_bus) % t_bus != 0:
+            timestamp += t_step
+        # at this point we have advanced in time for [i] bus group to match
+        # the condition of meeiting the offset of [i+1] bus, so we update the
+        # advance rate to be a common multiple of the [i] and [i+1] bus groups
+        t_step *= t_bus
+
+    # we have gon through all busses
+    return timestamp
+
+
 def get_earliest_bus_arrival(target_time: int, bus_ids: list) -> list:
 
     max_interval = max(bus_ids)
@@ -77,6 +148,10 @@ def main(input_path):
     wait_time = arrival_time - target_time
     print(f"PART 1: wait time = {wait_time}")
     print(f"PART 1: wait_time * bus_id = {wait_time * bus_id}")
+
+    # part2
+    timestamp = part2_shenanigans(input_data)
+    print(f"PART 2: Timestamp satisfying part 2 requirements: {timestamp}")
 
 
 if __name__ == "__main__":
