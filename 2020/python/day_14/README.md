@@ -71,8 +71,6 @@ Execute the initialization program. What is the sum of all values left in memory
 
 ## Part 2
 
---- Part Two ---
-
 For some reason, the sea port's computer system still can't communicate with your
 ferry's docking program. It must be using version 2 of the decoder chip!
 
