@@ -22,104 +22,94 @@ def example_data_0():
 
 def test_example_turns(example_data_0):
     spoken_words = []
-    for i in range(10):
-        spoken_words.append(part1(example_data_0, i + 1))
-    assert spoken_words == [0, 3, 6, 0, 3, 3, 1, 0, 4, 0]
+    for i in range(3, 10):
+        spoken_words.append(play_game(example_data_0, i + 1))
+    assert spoken_words == [0, 3, 3, 1, 0, 4, 0]
 
 
 def test_example_0(example_data_0):
-    assert part1(example_data_0, 2020) == 436
+    assert play_game(example_data_0, 2020) == 436
 
 
 def test_example_1():
-    assert part1([1, 3, 2], 2020) == 1
+    assert play_game([1, 3, 2], 2020) == 1
 
 
 def test_example_2():
-    assert part1([2, 1, 3], 2020) == 10
+    assert play_game([2, 1, 3], 2020) == 10
 
 
 def test_example_3():
-    assert part1([1, 2, 3], 2020) == 27
+    assert play_game([1, 2, 3], 2020) == 27
 
 
 def test_example_4():
-    assert part1([2, 3, 1], 2020) == 78
+    assert play_game([2, 3, 1], 2020) == 78
 
 
 def test_example_5():
-    assert part1([3, 2, 1], 2020) == 438
+    assert play_game([3, 2, 1], 2020) == 438
 
 
 def test_example_6():
-    assert part1([3, 1, 2], 2020) == 1836
+    assert play_game([3, 1, 2], 2020) == 1836
 
 
-def part1(game_input: list, n_turns_to_take: int) -> int:
+def test_part2_0():
+    assert play_game([0, 3, 6], 30000000) == 175594
 
-    counts_dict = {}
-    spoken_words = []
 
-    # start the game
-    for ig, g in enumerate(game_input):
-        counts_dict[g] = 1
-        spoken_words.append(g)
-        if n_turns_to_take == len(spoken_words):
-            return g
+def play_game(game_input: list, n_turns_to_take: int) -> int:
 
-    while len(spoken_words) != n_turns_to_take:
+    if n_turns_to_take < len(game_input):
+        print("ERROR: n_turns_to_take < len(game_input)!")
+        sys.exit(1)
 
-        last_word_spoken = spoken_words[-1]
-        # was the last word spoken for the first time?
-        last_was_first = counts_dict[last_word_spoken] == 1
+    # dict of previous turns in which a word has appeared (we only ever care about the previous)
+    spoken_word_history = {}
 
-        if last_was_first:
-            # if the last spoken word was the first time that that word
-            # appeared, then the current spoken word for this turn is 0
-            spoken_word = 0
+    # Automatically, the next spoken word after loading in the input will be 0 since all input words are unique.
+    # So we load it prior to starting the iterations.
+    word_to_be_spoken = 0
+
+    # start the game -- all input is unique
+    for turn_num, val in enumerate(game_input):
+        spoken_word_history[val] = turn_num
+
+    for turn_num in range(len(game_input), n_turns_to_take):
+
+        # word to speak this turn
+        word_to_speak = word_to_be_spoken
+
+        # what word to speak in the next turn?
+
+        # The next turn's previous turn number is currently "turn_num".
+        # If "word_to_speak" appears in "spoken_word_history", the turn number appearing in
+        # "spoken_word_history" corresponds to a turn earlier than "turn_num".
+        # That is: "turn_num" is the next turn's "previous turn", and "spoken_word_history"
+        # holds information about the next turn's "previous, previous turn".
+        # So if "word_to_speak" appears in "spoken_word_history", it is because it's appearance
+        # during turn "turn_num" was not the first appearance of this "word_to_speak" value.
+        if word_to_speak in spoken_word_history:
+            word_to_be_spoken = turn_num - spoken_word_history[word_to_speak]
         else:
-            # if the last word spoken has been spoken previously (in a turn prior to the previous one)
-            # then the next spoken word is the difference between the turn number
-            # when it was last spoken and the turn number of the turn prior to the previous one
-
-            turn_number_of_previous = len(spoken_words) - 1
-            turn_number_of_previous_previous = -1
-            for n_back, word in enumerate(spoken_words[:-1][::-1]):
-                if word == last_word_spoken:
-                    # +1 since counter back starts at 0, and +1 since we removed the very last element before iterating
-                    turn_number_of_previous_previous = len(spoken_words) - (n_back + 2)
-                    break
-            if (
-                turn_number_of_previous_previous < 0
-                or turn_number_of_previous_previous == turn_number_of_previous
-            ):
-                print(
-                    f"ERROR: Failed to find previous previous turn number for last spoken word (={last_word_spoken})"
-                )
-                sys.exit(1)
-
-            turn_number_difference = (
-                turn_number_of_previous - turn_number_of_previous_previous
-            )
-            spoken_word = turn_number_difference
-
-        spoken_words.append(spoken_word)
-        if spoken_word in counts_dict:
-            counts_dict[spoken_word] += 1
-        else:
-            counts_dict[spoken_word] = 1
-        continue
-
-    return spoken_words[-1]
+            word_to_be_spoken = 0
+        spoken_word_history[word_to_speak] = turn_num
+    return word_to_speak
 
 
 def main(input_path):
+
     with open(input_path, "r") as ifile:
         input_data = [int(x) for x in ifile.read().strip().split(",")]
 
     # part 1
-    word = part1(input_data, 2020)
+    word = play_game(input_data, 2020)
     print(f"PART 1: 2020th number spoken: {word}")
+
+    # part 2
+    word = play_game(input_data, 30000000)
+    print(f"PART 2: 30 millioonth spoken word: {word}")
 
 
 if __name__ == "__main__":
