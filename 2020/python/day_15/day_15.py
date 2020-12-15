@@ -76,6 +76,9 @@ def play_game(game_input: list, n_turns_to_take: int) -> int:
     for turn_num, val in enumerate(game_input):
         spoken_word_history[val] = turn_num
 
+    # start iterating now, once we have loaded in the game input.
+    # start the turn number counts to starting with the count of turns
+    # after loading the input.
     for turn_num in range(len(game_input), n_turns_to_take):
 
         # word to speak this turn
