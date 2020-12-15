@@ -94,6 +94,8 @@ def part2_apply_address_mask(mask_string: str, address_value: int) -> list:
     address_binary_str = f"{address_binary_str:0>36}"
 
     n_different_addresses = mask.count("X") ** 2
+    n_x = mask.count("X")
+    n_different_addresses = 2 ** n_x
 
     addresses = []
     for iaddress in range(n_different_addresses):
@@ -102,6 +104,11 @@ def part2_apply_address_mask(mask_string: str, address_value: int) -> list:
 
         float_number = 0
         new_address = list(address_binary_str)
+
+        # apply the other rules
+        for imask, mask_val in enumerate(mask):
+            if mask_val == "1":
+                new_address[imask] = "1"
 
         # floating indices
         for float_index, is_set in enumerate(list(b_address)[::-1]):
@@ -112,25 +119,13 @@ def part2_apply_address_mask(mask_string: str, address_value: int) -> list:
             else:
                 new_address[mask_idx_map[float_index]] = "0"
 
-        # apply the other rules
-        for imask, mask_val in enumerate(mask):
-            if mask_val == "1":
-                new_address[imask] = "1"
-
         addresses.append("".join(new_address))
     addresses = [int(x, 2) for x in addresses]
-    addresses = list(set(addresses))
+    # addresses = list(set(addresses))
     return addresses
 
 
 def main(input_path):
-
-    # mask_string = "00000000000000000000000000000000X0XX"
-    # address_value = 26
-    # anew =  part2_apply_address_mask(mask_string, address_value)
-    # for i, a in enumerate(anew) :
-    #    print(f"[{i}] {a}")
-    # sys.exit()
 
     # part 1
     memory = {}
