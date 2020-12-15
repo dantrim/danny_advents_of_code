@@ -15,7 +15,7 @@ of considering the most recently spoken number:
 
     If that was the first time the number has been spoken, the current player says 0.
     Otherwise, the number had been spoken before; the current player announces how
-many turns apart the number is from when it was previously spoken.
+    many turns apart the number is from when it was previously spoken.
 
 So, after the starting numbers, each turn results in that player speaking aloud
 either 0 (if the last number is new) or an age (if the last number is a repeat).
