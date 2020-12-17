@@ -139,17 +139,17 @@ def main(input_path):
     n_active = np.count_nonzero(space == 1)
     print(f"PART1: n active after 6 cycles: {n_active}")
 
-    # width_x_y = 35
-    # width_z_t = 20
-    # x0, y0, z0, t0 = width_x_y//2, width_x_y//2, width_z_t//2, width_z_t//2
-    # space = np.zeros((width_x_y, width_x_y, width_z_t, width_z_t), dtype = np.dtype('u1'))
-    # for i, row in enumerate(input_data) :
-    #    for y, col in enumerate(row) :
-    #        space[x0+i, y0+y, z0, t0] = int(pos2num(col))
-    # for _ in range(0,6):
-    #    apply_rules_4d(space, width_x_y, width_z_t)
-    # n_active = np.count_nonzero(space==1)
-    # print(f"PART2: n active after 6 cycles: {n_active}")
+    width_x_y = 35
+    width_z_t = 20
+    x0, y0, z0, t0 = width_x_y // 2, width_x_y // 2, width_z_t // 2, width_z_t // 2
+    space = np.zeros((width_x_y, width_x_y, width_z_t, width_z_t), dtype=np.dtype("u1"))
+    for i, row in enumerate(input_data):
+        for y, col in enumerate(row):
+            space[x0 + i, y0 + y, z0, t0] = int(pos2num(col))
+    for _ in range(0, 6):
+        apply_rules_4d(space, width_x_y, width_z_t)
+    n_active = np.count_nonzero(space == 1)
+    print(f"PART2: n active after 6 cycles: {n_active}")
 
 
 if __name__ == "__main__":
