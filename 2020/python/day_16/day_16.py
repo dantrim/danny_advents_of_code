@@ -141,9 +141,9 @@ def part1(class_ranges, nearby_tickets):
 
 def determine_class_assignment(class_names, class_ranges, input_tickets):
 
+    # make the arrays the same shape by padding with a repeated value
     max_len_class_range = -1
     max_len_tickets = -1
-
     for class_range in class_ranges:
         max_len_class_range = max([max_len_class_range, len(class_range)])
     for ticket in input_tickets:
@@ -160,12 +160,11 @@ def determine_class_assignment(class_names, class_ranges, input_tickets):
             ticket.append(ticket[-1])
         tickets.append(ticket)
 
+    # these arrays will now have the same dimension that we care about
     ranges = np.array(
         ranges
     ).T  # take transpose to associate range rows to all tickets in a specific column
     tickets = np.array(tickets)
-
-    # 2D array of class ranges
     n_classes_from_tickets = tickets.shape[1]
     n_classes_from_ranges = ranges.shape[1]
     if n_classes_from_ranges != n_classes_from_tickets:
@@ -191,8 +190,10 @@ def determine_class_assignment(class_names, class_ranges, input_tickets):
                 cost_matrix[i, j] = 1
 
     row_assignments, col_assignments = linear_sum_assignment(cost_matrix)
-    assignments = list(zip(row_assignments, col_assignments))
-
+    assignments = list(
+        zip(*linear_sum_assignment(cost_matrix))
+    )  # contains tuples of ticket column/index <--> class mappings
+    # create a mapping between the ticket index and the names of the associated class/rule
     col_to_class_map = {}
     for assignment in assignments:
         tickets_col, class_index = assignment
