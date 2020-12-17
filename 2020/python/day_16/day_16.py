@@ -189,7 +189,6 @@ def determine_class_assignment(class_names, class_ranges, input_tickets):
             else:
                 cost_matrix[i, j] = 1
 
-    row_assignments, col_assignments = linear_sum_assignment(cost_matrix)
     assignments = list(
         zip(*linear_sum_assignment(cost_matrix))
     )  # contains tuples of ticket column/index <--> class mappings
