@@ -58,7 +58,6 @@ def test_4():
 
 
 def apply_mask(mask_string: str, memory_val: int) -> int:
-
     """
     Sets the active positions in the bit mask in the bit-representation
     of `memory_val` to the value in the input mask string.
@@ -95,7 +94,7 @@ def part2_apply_address_mask(mask_string: str, address_value: int) -> list:
 
     n_different_addresses = mask.count("X") ** 2
     n_x = mask.count("X")
-    n_different_addresses = 2 ** n_x
+    n_different_addresses = 2**n_x
 
     addresses = []
     for iaddress in range(n_different_addresses):
