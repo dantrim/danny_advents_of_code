@@ -28,7 +28,7 @@ def load_forest(input_path):
 
 
 def is_tree(character):
-    """ A tree character is defined as "#" """
+    """A tree character is defined as "#" """
     return character == "#"
 
 

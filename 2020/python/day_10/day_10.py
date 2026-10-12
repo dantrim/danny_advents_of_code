@@ -122,7 +122,6 @@ def find_runs(diffs):
 
 @functools.lru_cache(maxsize=100)
 def find_n_inclusive(run_length: int) -> int:
-
     """
     This function takes in the length of a 1-valued run of adapter joltage rating
     differences and creates all possible arrays of the same length
